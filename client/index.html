@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +16,31 @@
             console.log("¡Conectado al servidor!");
         });
 
+        socket.on('historial', (mensajesDB) => {
+            mensajesDB.forEach(msg => {
+                const item = `<li>${msg.content}</li>`;
+                messages.insertAdjacentHTML('beforeend', item);
+                
+                //BAJA AL FINAL AL CARGAR
+                messages.scrollTop = messages.scrollHeight;
+            });
+        });
+
+        
+
         const form = document.getElementById('form')
         const input = document.getElementById('input')
         const messages = document.getElementById('messages')
 
         socket.on('chat message', (msg) => {
+            const isAtBottom = messages.scrollHeight - messages.scrollTop <= messages.clientHeight + 10;
+
             const item = `<li>${msg}</li>`;
             messages.insertAdjacentHTML('beforeend', item);
+
+            if (isAtBottom) {
+                messages.scrollTop = messages.scrollHeight;
+            }
         })
 
         form.addEventListener('submit', (e) => {
@@ -62,14 +80,30 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
+
+            flex: 1;
+            overflow-y: auto;
         }
 
-        #messages > lsit{
+        #messages > li{
             padding: .5rem 1rem;
         }
 
         #messages > li:nth-child(odd){
             background: #000;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+
+            overflow-y: auto;
+            height: 100%;    
+        }
+
+        #messages {
+            scroll-behavior: smooth;
         }
 
         #chat {
@@ -78,7 +112,9 @@
             overflow: hidden;
             width: 350px;
             height: 100%;
-            position: relative;
+
+            display: flex;
+            flex-direction: column;
         }
 
         #form {
